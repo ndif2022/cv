@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estrai pagine PDF</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      background: linear-gradient(135deg, #6366f1, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Drop zone */
+    #drop-zone {
+      width: 100%;
+      max-width: 680px;
+      border: 2px dashed #334155;
+      border-radius: 16px;
+      padding: 3rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: #1e293b;
+    }
+    #drop-zone:hover, #drop-zone.drag-over {
+      border-color: #6366f1;
+      background: #1e293b;
+    }
+    #drop-zone svg { opacity: 0.5; margin-bottom: 1rem; }
+    #drop-zone p { color: #94a3b8; font-size: 0.95rem; }
+    #drop-zone strong { color: #c7d2fe; }
+    #file-input { display: none; }
+
+    /* Toolbar */
+    #toolbar {
+      display: none;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 1.5rem;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    #toolbar.visible { display: flex; }
+
+    #file-name {
+      flex: 1;
+      min-width: 160px;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .range-input {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.85rem;
+    }
+    .range-input label { color: #94a3b8; white-space: nowrap; }
+    .range-input input {
+      width: 90px;
+      background: transparent;
+      border: none;
+      color: #e2e8f0;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid #334155;
+    }
+    .btn-secondary:hover:not(:disabled) { border-color: #6366f1; color: #c7d2fe; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+    }
+    .btn-primary:hover:not(:disabled) { opacity: 0.9; }
+
+    .btn-danger {
+      background: #1e293b;
+      color: #f87171;
+      border: 1px solid #334155;
+    }
+    .btn-danger:hover:not(:disabled) { border-color: #f87171; }
+
+    /* Selection counter */
+    #sel-count {
+      font-size: 0.82rem;
+      color: #6366f1;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* Grid */
+    #grid {
+      display: none;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 1rem;
+    }
+    #grid.visible { display: grid; }
+
+    .page-card {
+      position: relative;
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+      user-select: none;
+    }
+    .page-card:hover { border-color: #6366f1; transform: translateY(-2px); }
+    .page-card.selected {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px #6366f133;
+    }
+    .page-card canvas { display: block; width: 100%; }
+    .page-label {
+      text-align: center;
+      font-size: 0.72rem;
+      color: #64748b;
+      padding: 0.3rem;
+    }
+    .page-card.selected .page-label { color: #a5b4fc; }
+    .check {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #6366f1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .page-card.selected .check { opacity: 1; }
+    .check svg { width: 11px; height: 11px; fill: white; }
+
+    /* Spinner overlay */
+    #spinner {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,17,23,0.8);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+      z-index: 999;
+    }
+    #spinner.visible { display: flex; }
+    .spin {
+      width: 44px; height: 44px;
+      border: 3px solid #334155;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #spinner p { color: #94a3b8; font-size: 0.9rem; }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      padding: 0.75rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      transition: transform 0.3s;
+      z-index: 1000;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.error { border-color: #f87171; color: #fca5a5; }
+    #toast.success { border-color: #34d399; color: #6ee7b7; }
+  </style>
+</head>
+<body>
+
+<h1>Estrai pagine PDF</h1>
+<p class="subtitle">Seleziona le pagine dal tuo PDF e scaricale come nuovo documento</p>
+
+<!-- Drop zone -->
+<div id="drop-zone">
+  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.5">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="12" y1="18" x2="12" y2="12"/>
+    <polyline points="9 15 12 12 15 15"/>
+  </svg>
+  <p><strong>Trascina un PDF qui</strong><br/>oppure clicca per scegliere un file</p>
+  <input type="file" id="file-input" accept="application/pdf" />
+</div>
+
+<!-- Toolbar -->
+<div id="toolbar">
+  <span id="file-name"></span>
+  <div class="range-input">
+    <label>Vai a pagina</label>
+    <input type="number" id="jump-input" min="1" placeholder="n" />
+    <button class="btn-secondary" id="jump-btn">→</button>
+  </div>
+  <button class="btn-secondary" id="select-all-btn">Seleziona tutto</button>
+  <button class="btn-secondary" id="deselect-btn">Deseleziona</button>
+  <span id="sel-count">0 pagine selezionate</span>
+  <button class="btn-danger" id="new-file-btn">↩ Nuovo file</button>
+  <button class="btn-primary" id="extract-btn" disabled>Estrai PDF ↓</button>
+</div>
+
+<!-- Page grid -->
+<div id="grid"></div>
+
+<!-- Spinner -->
+<div id="spinner">
+  <div class="spin"></div>
+  <p id="spinner-msg">Caricamento PDF…</p>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- CDN libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  const dropZone   = document.getElementById('drop-zone');
+  const fileInput  = document.getElementById('file-input');
+  const toolbar    = document.getElementById('toolbar');
+  const grid       = document.getElementById('grid');
+  const spinner    = document.getElementById('spinner');
+  const spinnerMsg = document.getElementById('spinner-msg');
+  const toast      = document.getElementById('toast');
+  const selCount   = document.getElementById('sel-count');
+  const extractBtn = document.getElementById('extract-btn');
+  const fileName   = document.getElementById('file-name');
+  const jumpInput  = document.getElementById('jump-input');
+
+  let pdfBytes = null;
+  let selected = new Set();
+  let totalPages = 0;
+
+  // ── Drop zone ──────────────────────────────────────────────
+  dropZone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone.classList.add('drag-over');
+  });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f && f.type === 'application/pdf') handleFile(f);
+    else showToast('Carica un file PDF valido', 'error');
+  });
+
+  // ── Load PDF ───────────────────────────────────────────────
+  async function handleFile(file) {
+    if (!file) return;
+    showSpinner('Caricamento PDF…');
+    try {
+      pdfBytes = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: pdfBytes.slice(0) }).promise;
+      totalPages = pdf.numPages;
+      selected.clear();
+      grid.innerHTML = '';
+
+      fileName.textContent = file.name;
+      jumpInput.max = totalPages;
+      dropZone.style.display = 'none';
+      toolbar.classList.add('visible');
+      grid.classList.add('visible');
+
+      updateCounter();
+      await renderThumbnails(pdf);
+    } catch (err) {
+      showToast('Errore nel caricare il PDF: ' + err.message, 'error');
+    }
+    hideSpinner();
+  }
+
+  async function renderThumbnails(pdf) {
+    const SCALE = 0.3;
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const vp   = page.getViewport({ scale: SCALE });
+      const canvas = document.createElement('canvas');
+      canvas.width  = vp.width;
+      canvas.height = vp.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+
+      const card = document.createElement('div');
+      card.className = 'page-card';
+      card.dataset.page = i;
+      card.innerHTML = `<div class="check"><svg viewBox="0 0 12 10"><polyline points="1,5 4,9 11,1" stroke="white" stroke-width="2" fill="none"/></svg></div>`;
+      card.prepend(canvas);
+
+      const label = document.createElement('div');
+      label.className = 'page-label';
+      label.textContent = 'Pag. ' + i;
+      card.appendChild(label);
+
+      card.addEventListener('click', () => togglePage(i, card));
+      grid.appendChild(card);
+    }
+  }
+
+  // ── Page selection ─────────────────────────────────────────
+  function togglePage(n, card) {
+    if (selected.has(n)) {
+      selected.delete(n);
+      card.classList.remove('selected');
+    } else {
+      selected.add(n);
+      card.classList.add('selected');
+    }
+    updateCounter();
+  }
+
+  document.getElementById('select-all-btn').addEventListener('click', () => {
+    document.querySelectorAll('.page-card').forEach(c => {
+      const n = parseInt(c.dataset.page);
+      selected.add(n);
+      c.classList.add('selected');
+    });
+    updateCounter();
+  });
+
+  document.getElementById('deselect-btn').addEventListener('click', () => {
+    selected.clear();
+    document.querySelectorAll('.page-card').forEach(c => c.classList.remove('selected'));
+    updateCounter();
+  });
+
+  function updateCounter() {
+    const n = selected.size;
+    selCount.textContent = n + (n === 1 ? ' pagina selezionata' : ' pagine selezionate');
+    extractBtn.disabled = n === 0;
+  }
+
+  // ── Jump to page ───────────────────────────────────────────
+  document.getElementById('jump-btn').addEventListener('click', jumpToPage);
+  jumpInput.addEventListener('keydown', e => e.key === 'Enter' && jumpToPage());
+
+  function jumpToPage() {
+    const n = parseInt(jumpInput.value);
+    if (!n || n < 1 || n > totalPages) return showToast('Numero di pagina non valido', 'error');
+    const card = grid.querySelector(`[data-page="${n}"]`);
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // ── Range input from text (e.g. "1-3,5,7-9") ──────────────
+  // (parse via the toolbar range field if present)
+
+  // ── Extract ────────────────────────────────────────────────
+  extractBtn.addEventListener('click', async () => {
+    if (selected.size === 0) return;
+    showSpinner('Estrazione in corso…');
+    try {
+      const { PDFDocument } = PDFLib;
+      const srcDoc = await PDFDocument.load(pdfBytes);
+      const newDoc = await PDFDocument.create();
+      const pages  = Array.from(selected).sort((a, b) => a - b);
+
+      for (const n of pages) {
+        const [copied] = await newDoc.copyPages(srcDoc, [n - 1]);
+        newDoc.addPage(copied);
+      }
+
+      const outBytes = await newDoc.save();
+      const blob = new Blob([outBytes], { type: 'application/pdf' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url;
+      a.download = 'pagine-estratte.pdf';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(`${pages.length} pagine estratte con successo!`, 'success');
+    } catch (err) {
+      showToast('Errore durante l\'estrazione: ' + err.message, 'error');
+    }
+    hideSpinner();
+  });
+
+  // ── New file ───────────────────────────────────────────────
+  document.getElementById('new-file-btn').addEventListener('click', () => {
+    pdfBytes = null;
+    selected.clear();
+    totalPages = 0;
+    grid.innerHTML = '';
+    grid.classList.remove('visible');
+    toolbar.classList.remove('visible');
+    dropZone.style.display = '';
+    fileInput.value = '';
+  });
+
+  // ── Spinner / Toast helpers ────────────────────────────────
+  function showSpinner(msg) {
+    spinnerMsg.textContent = msg;
+    spinner.classList.add('visible');
+  }
+  function hideSpinner() { spinner.classList.remove('visible'); }
+
+  let toastTimer;
+  function showToast(msg, type = '') {
+    toast.textContent = msg;
+    toast.className = 'show ' + type;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.className = '', 3000);
+  }
+</script>
+</body>
+</html>
