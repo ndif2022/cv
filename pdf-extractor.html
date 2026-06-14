@@ -26,14 +26,9 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
+    .subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 2rem; }
 
-    .subtitle {
-      color: #64748b;
-      font-size: 0.9rem;
-      margin-bottom: 2rem;
-    }
-
-    /* Drop zone */
+    /* ── Drop zone ─────────────────────────────────────────── */
     #drop-zone {
       width: 100%;
       max-width: 680px;
@@ -45,54 +40,178 @@
       transition: border-color 0.2s, background 0.2s;
       background: #1e293b;
     }
-    #drop-zone:hover, #drop-zone.drag-over {
-      border-color: #6366f1;
-      background: #1e293b;
-    }
+    #drop-zone:hover, #drop-zone.drag-over { border-color: #6366f1; }
     #drop-zone svg { opacity: 0.5; margin-bottom: 1rem; }
     #drop-zone p { color: #94a3b8; font-size: 0.95rem; }
     #drop-zone strong { color: #c7d2fe; }
     #file-input { display: none; }
 
-    /* Toolbar */
-    #toolbar {
+    /* ── Main layout ───────────────────────────────────────── */
+    #main {
       display: none;
       width: 100%;
-      max-width: 900px;
+      max-width: 1200px;
       margin-top: 1.5rem;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      align-items: center;
+      gap: 1.25rem;
+      align-items: flex-start;
     }
-    #toolbar.visible { display: flex; }
+    #main.visible { display: flex; }
+
+    /* ── TOC sidebar ───────────────────────────────────────── */
+    #toc-panel {
+      width: 280px;
+      flex-shrink: 0;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      overflow: hidden;
+      position: sticky;
+      top: 1rem;
+      max-height: calc(100vh - 2rem);
+      display: flex;
+      flex-direction: column;
+    }
+
+    #toc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #334155;
+      flex-shrink: 0;
+    }
+    #toc-header h2 { font-size: 0.85rem; font-weight: 700; color: #a5b4fc; letter-spacing: 0.05em; text-transform: uppercase; }
+
+    #toc-search {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid #1e293b;
+      flex-shrink: 0;
+    }
+    #toc-search input {
+      flex: 1;
+      background: #0f1117;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      color: #e2e8f0;
+      font-size: 0.8rem;
+      padding: 0.3rem 0.6rem;
+      outline: none;
+    }
+    #toc-search input:focus { border-color: #6366f1; }
+
+    #toc-empty {
+      padding: 1.5rem 1rem;
+      font-size: 0.82rem;
+      color: #475569;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    #toc-list {
+      overflow-y: auto;
+      flex: 1;
+      padding: 0.5rem 0;
+    }
+
+    .toc-item {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .toc-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      color: #cbd5e1;
+      font-size: 0.8rem;
+      text-align: left;
+      padding: 0.45rem 1rem 0.45rem 0;
+      cursor: pointer;
+      border-radius: 0;
+      font-weight: 400;
+      line-height: 1.4;
+      transition: color 0.15s, background 0.15s;
+    }
+    .toc-btn:hover { color: #a5b4fc; background: #0f111780; }
+    .toc-btn.active { color: #818cf8; font-weight: 600; }
+
+    .toc-select-btn {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      padding: 0.3rem 0.75rem 0.3rem 0.25rem;
+      cursor: pointer;
+      font-size: 0.72rem;
+      color: #475569;
+      border-radius: 6px;
+      white-space: nowrap;
+      transition: color 0.15s;
+    }
+    .toc-select-btn:hover { color: #6366f1; }
+
+    .toc-item.depth-0 .toc-btn { padding-left: 1rem; font-weight: 600; color: #e2e8f0; font-size: 0.82rem; }
+    .toc-item.depth-1 .toc-btn { padding-left: 1.75rem; }
+    .toc-item.depth-2 .toc-btn { padding-left: 2.5rem; font-size: 0.76rem; color: #94a3b8; }
+    .toc-item.depth-3 .toc-btn { padding-left: 3.25rem; font-size: 0.74rem; color: #64748b; }
+
+    .toc-page-badge {
+      flex-shrink: 0;
+      font-size: 0.68rem;
+      color: #475569;
+      margin-right: 0.25rem;
+    }
+
+    /* ── Right column ──────────────────────────────────────── */
+    #right-col {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* ── Toolbar ───────────────────────────────────────────── */
+    #toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: center;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+    }
 
     #file-name {
       flex: 1;
-      min-width: 160px;
-      font-size: 0.85rem;
+      min-width: 120px;
+      font-size: 0.82rem;
       color: #94a3b8;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .range-input {
+    .jump-wrap {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      background: #1e293b;
+      gap: 0.4rem;
+      background: #0f1117;
       border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 0.4rem 0.75rem;
-      font-size: 0.85rem;
+      border-radius: 7px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
     }
-    .range-input label { color: #94a3b8; white-space: nowrap; }
-    .range-input input {
-      width: 90px;
+    .jump-wrap label { color: #94a3b8; white-space: nowrap; }
+    .jump-wrap input {
+      width: 60px;
       background: transparent;
       border: none;
       color: #e2e8f0;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       outline: none;
     }
 
@@ -100,20 +219,20 @@
       cursor: pointer;
       border: none;
       border-radius: 8px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      padding: 0.5rem 1rem;
+      padding: 0.45rem 0.9rem;
       transition: opacity 0.15s, transform 0.1s;
     }
     button:active { transform: scale(0.97); }
     button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .btn-secondary {
-      background: #1e293b;
+    .btn-ghost {
+      background: #0f1117;
       color: #94a3b8;
       border: 1px solid #334155;
     }
-    .btn-secondary:hover:not(:disabled) { border-color: #6366f1; color: #c7d2fe; }
+    .btn-ghost:hover:not(:disabled) { border-color: #6366f1; color: #c7d2fe; }
 
     .btn-primary {
       background: linear-gradient(135deg, #6366f1, #8b5cf6);
@@ -122,31 +241,25 @@
     .btn-primary:hover:not(:disabled) { opacity: 0.9; }
 
     .btn-danger {
-      background: #1e293b;
+      background: #0f1117;
       color: #f87171;
       border: 1px solid #334155;
     }
     .btn-danger:hover:not(:disabled) { border-color: #f87171; }
 
-    /* Selection counter */
     #sel-count {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       color: #6366f1;
-      font-weight: 600;
+      font-weight: 700;
       white-space: nowrap;
     }
 
-    /* Grid */
+    /* ── Page grid ─────────────────────────────────────────── */
     #grid {
-      display: none;
-      width: 100%;
-      max-width: 900px;
-      margin-top: 1.5rem;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.85rem;
     }
-    #grid.visible { display: grid; }
 
     .page-card {
       position: relative;
@@ -159,24 +272,19 @@
       user-select: none;
     }
     .page-card:hover { border-color: #6366f1; transform: translateY(-2px); }
-    .page-card.selected {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 2px #6366f133;
-    }
+    .page-card.selected { border-color: #6366f1; box-shadow: 0 0 0 2px #6366f133; }
     .page-card canvas { display: block; width: 100%; }
     .page-label {
       text-align: center;
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       color: #64748b;
       padding: 0.3rem;
     }
     .page-card.selected .page-label { color: #a5b4fc; }
     .check {
       position: absolute;
-      top: 5px;
-      right: 5px;
-      width: 20px;
-      height: 20px;
+      top: 5px; right: 5px;
+      width: 18px; height: 18px;
       border-radius: 50%;
       background: #6366f1;
       display: flex;
@@ -186,14 +294,17 @@
       transition: opacity 0.15s;
     }
     .page-card.selected .check { opacity: 1; }
-    .check svg { width: 11px; height: 11px; fill: white; }
+    .check svg { width: 10px; height: 10px; }
 
-    /* Spinner overlay */
+    /* highlighted from TOC hover */
+    .page-card.highlight { border-color: #f59e0b; box-shadow: 0 0 0 2px #f59e0b33; }
+
+    /* ── Spinner ───────────────────────────────────────────── */
     #spinner {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(15,17,23,0.8);
+      background: rgba(15,17,23,0.82);
       align-items: center;
       justify-content: center;
       flex-direction: column;
@@ -211,24 +322,29 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     #spinner p { color: #94a3b8; font-size: 0.9rem; }
 
-    /* Toast */
+    /* ── Toast ─────────────────────────────────────────────── */
     #toast {
       position: fixed;
-      bottom: 2rem;
-      left: 50%;
+      bottom: 2rem; left: 50%;
       transform: translateX(-50%) translateY(80px);
       background: #1e293b;
       border: 1px solid #334155;
       color: #e2e8f0;
-      padding: 0.75rem 1.25rem;
+      padding: 0.7rem 1.2rem;
       border-radius: 10px;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       transition: transform 0.3s;
       z-index: 1000;
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
-    #toast.error { border-color: #f87171; color: #fca5a5; }
+    #toast.error   { border-color: #f87171; color: #fca5a5; }
     #toast.success { border-color: #34d399; color: #6ee7b7; }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 720px) {
+      #main.visible { flex-direction: column; }
+      #toc-panel { width: 100%; position: static; max-height: 280px; }
+    }
   </style>
 </head>
 <body>
@@ -248,23 +364,45 @@
   <input type="file" id="file-input" accept="application/pdf" />
 </div>
 
-<!-- Toolbar -->
-<div id="toolbar">
-  <span id="file-name"></span>
-  <div class="range-input">
-    <label>Vai a pagina</label>
-    <input type="number" id="jump-input" min="1" placeholder="n" />
-    <button class="btn-secondary" id="jump-btn">→</button>
-  </div>
-  <button class="btn-secondary" id="select-all-btn">Seleziona tutto</button>
-  <button class="btn-secondary" id="deselect-btn">Deseleziona</button>
-  <span id="sel-count">0 pagine selezionate</span>
-  <button class="btn-danger" id="new-file-btn">↩ Nuovo file</button>
-  <button class="btn-primary" id="extract-btn" disabled>Estrai PDF ↓</button>
-</div>
+<!-- Main layout (TOC + content) -->
+<div id="main">
 
-<!-- Page grid -->
-<div id="grid"></div>
+  <!-- TOC sidebar -->
+  <aside id="toc-panel">
+    <div id="toc-header">
+      <h2>📑 Indice</h2>
+      <span id="toc-count" style="font-size:0.75rem;color:#475569"></span>
+    </div>
+    <div id="toc-search" style="display:none">
+      <input type="text" id="toc-search-input" placeholder="Cerca nell'indice…" />
+    </div>
+    <div id="toc-list"></div>
+    <div id="toc-empty">Nessun indice trovato in questo PDF</div>
+  </aside>
+
+  <!-- Right column -->
+  <div id="right-col">
+
+    <!-- Toolbar -->
+    <div id="toolbar">
+      <span id="file-name"></span>
+      <div class="jump-wrap">
+        <label>Pag.</label>
+        <input type="number" id="jump-input" min="1" placeholder="n" />
+        <button class="btn-ghost" id="jump-btn" style="padding:0.3rem 0.6rem">→</button>
+      </div>
+      <button class="btn-ghost" id="select-all-btn">Tutto</button>
+      <button class="btn-ghost" id="deselect-btn">Nessuna</button>
+      <span id="sel-count">0 pag. selezionate</span>
+      <button class="btn-danger" id="new-file-btn">↩ Nuovo</button>
+      <button class="btn-primary" id="extract-btn" disabled>Estrai PDF ↓</button>
+    </div>
+
+    <!-- Page grid -->
+    <div id="grid"></div>
+
+  </div>
+</div>
 
 <!-- Spinner -->
 <div id="spinner">
@@ -275,7 +413,7 @@
 <!-- Toast -->
 <div id="toast"></div>
 
-<!-- CDN libraries -->
+<!-- Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
@@ -283,30 +421,33 @@
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  const dropZone   = document.getElementById('drop-zone');
-  const fileInput  = document.getElementById('file-input');
-  const toolbar    = document.getElementById('toolbar');
-  const grid       = document.getElementById('grid');
-  const spinner    = document.getElementById('spinner');
-  const spinnerMsg = document.getElementById('spinner-msg');
-  const toast      = document.getElementById('toast');
-  const selCount   = document.getElementById('sel-count');
-  const extractBtn = document.getElementById('extract-btn');
-  const fileName   = document.getElementById('file-name');
-  const jumpInput  = document.getElementById('jump-input');
+  const dropZone      = document.getElementById('drop-zone');
+  const fileInput     = document.getElementById('file-input');
+  const mainEl        = document.getElementById('main');
+  const grid          = document.getElementById('grid');
+  const spinner       = document.getElementById('spinner');
+  const spinnerMsg    = document.getElementById('spinner-msg');
+  const toast         = document.getElementById('toast');
+  const selCount      = document.getElementById('sel-count');
+  const extractBtn    = document.getElementById('extract-btn');
+  const fileNameEl    = document.getElementById('file-name');
+  const jumpInput     = document.getElementById('jump-input');
+  const tocList       = document.getElementById('toc-list');
+  const tocEmpty      = document.getElementById('toc-empty');
+  const tocCount      = document.getElementById('toc-count');
+  const tocSearchWrap = document.getElementById('toc-search');
+  const tocSearchInput= document.getElementById('toc-search-input');
 
-  let pdfBytes = null;
-  let selected = new Set();
+  let pdfBytes  = null;
+  let pdfDoc    = null;   // pdfjsLib document
+  let selected  = new Set();
   let totalPages = 0;
+  let tocItems  = [];     // flat list: { title, page, depth, endPage }
 
   // ── Drop zone ──────────────────────────────────────────────
   dropZone.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
-
-  dropZone.addEventListener('dragover', e => {
-    e.preventDefault();
-    dropZone.classList.add('drag-over');
-  });
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
   dropZone.addEventListener('drop', e => {
     e.preventDefault();
@@ -322,39 +463,161 @@
     showSpinner('Caricamento PDF…');
     try {
       pdfBytes = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: pdfBytes.slice(0) }).promise;
-      totalPages = pdf.numPages;
+      pdfDoc   = await pdfjsLib.getDocument({ data: pdfBytes.slice(0) }).promise;
+      totalPages = pdfDoc.numPages;
       selected.clear();
       grid.innerHTML = '';
 
-      fileName.textContent = file.name;
+      fileNameEl.textContent = file.name;
       jumpInput.max = totalPages;
       dropZone.style.display = 'none';
-      toolbar.classList.add('visible');
-      grid.classList.add('visible');
+      mainEl.classList.add('visible');
 
       updateCounter();
-      await renderThumbnails(pdf);
+      spinnerMsg.textContent = 'Caricamento indice…';
+      await buildTOC(pdfDoc);
+      spinnerMsg.textContent = 'Rendering pagine…';
+      await renderThumbnails(pdfDoc);
     } catch (err) {
-      showToast('Errore nel caricare il PDF: ' + err.message, 'error');
+      showToast('Errore: ' + err.message, 'error');
     }
     hideSpinner();
   }
 
+  // ── TOC ────────────────────────────────────────────────────
+  async function buildTOC(pdf) {
+    tocList.innerHTML = '';
+    tocItems = [];
+    const outline = await pdf.getOutline();
+
+    if (!outline || outline.length === 0) {
+      tocEmpty.style.display = '';
+      tocSearchWrap.style.display = 'none';
+      tocCount.textContent = '';
+      return;
+    }
+    tocEmpty.style.display = 'none';
+
+    // Flatten outline tree, resolve page numbers
+    async function processItems(items, depth) {
+      for (const item of items) {
+        let pageNum = null;
+        try {
+          if (item.dest) {
+            const dest = typeof item.dest === 'string'
+              ? await pdf.getDestination(item.dest)
+              : item.dest;
+            if (dest && dest[0]) {
+              const idx = await pdf.getPageIndex(dest[0]);
+              pageNum = idx + 1;
+            }
+          }
+        } catch (_) {}
+        tocItems.push({ title: item.title || '(senza titolo)', page: pageNum, depth });
+        if (item.items && item.items.length) await processItems(item.items, depth + 1);
+      }
+    }
+    await processItems(outline, 0);
+
+    // Compute endPage for each item (start of next sibling/parent at same or shallower depth)
+    for (let i = 0; i < tocItems.length; i++) {
+      let end = totalPages;
+      for (let j = i + 1; j < tocItems.length; j++) {
+        if (tocItems[j].depth <= tocItems[i].depth && tocItems[j].page) {
+          end = tocItems[j].page - 1;
+          break;
+        }
+      }
+      tocItems[i].endPage = end;
+    }
+
+    tocCount.textContent = tocItems.length + ' voci';
+    tocSearchWrap.style.display = tocItems.length > 8 ? '' : 'none';
+    renderTOC(tocItems);
+  }
+
+  function renderTOC(items) {
+    tocList.innerHTML = '';
+    items.forEach((item, idx) => {
+      const row = document.createElement('div');
+      row.className = `toc-item depth-${Math.min(item.depth, 3)}`;
+
+      const btn = document.createElement('button');
+      btn.className = 'toc-btn';
+      btn.title = item.title;
+      btn.textContent = item.title;
+
+      if (item.page) {
+        const badge = document.createElement('span');
+        badge.className = 'toc-page-badge';
+        badge.textContent = 'p.' + item.page;
+        btn.appendChild(badge);
+      }
+
+      btn.addEventListener('click', () => {
+        if (item.page) {
+          const card = grid.querySelector(`[data-page="${item.page}"]`);
+          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        tocList.querySelectorAll('.toc-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+
+      // Highlight range on hover
+      btn.addEventListener('mouseenter', () => {
+        if (!item.page) return;
+        for (let p = item.page; p <= item.endPage; p++) {
+          const c = grid.querySelector(`[data-page="${p}"]`);
+          if (c) c.classList.add('highlight');
+        }
+      });
+      btn.addEventListener('mouseleave', () => {
+        grid.querySelectorAll('.highlight').forEach(c => c.classList.remove('highlight'));
+      });
+
+      const selBtn = document.createElement('button');
+      selBtn.className = 'toc-select-btn';
+      selBtn.textContent = '☑';
+      selBtn.title = 'Seleziona pagine di questa sezione';
+      selBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (!item.page) return;
+        for (let p = item.page; p <= item.endPage; p++) {
+          selected.add(p);
+          const c = grid.querySelector(`[data-page="${p}"]`);
+          if (c) c.classList.add('selected');
+        }
+        updateCounter();
+        showToast(`Selezionate pag. ${item.page}–${item.endPage}`, 'success');
+      });
+
+      row.appendChild(btn);
+      if (item.page) row.appendChild(selBtn);
+      tocList.appendChild(row);
+    });
+  }
+
+  // TOC search filter
+  tocSearchInput.addEventListener('input', () => {
+    const q = tocSearchInput.value.trim().toLowerCase();
+    const filtered = q ? tocItems.filter(i => i.title.toLowerCase().includes(q)) : tocItems;
+    renderTOC(filtered);
+  });
+
+  // ── Thumbnails ─────────────────────────────────────────────
   async function renderThumbnails(pdf) {
-    const SCALE = 0.3;
+    const SCALE = 0.28;
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const vp   = page.getViewport({ scale: SCALE });
       const canvas = document.createElement('canvas');
-      canvas.width  = vp.width;
-      canvas.height = vp.height;
+      canvas.width = vp.width; canvas.height = vp.height;
       await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
 
       const card = document.createElement('div');
       card.className = 'page-card';
       card.dataset.page = i;
-      card.innerHTML = `<div class="check"><svg viewBox="0 0 12 10"><polyline points="1,5 4,9 11,1" stroke="white" stroke-width="2" fill="none"/></svg></div>`;
+      card.innerHTML = `<div class="check"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4,9 11,1" stroke="white" stroke-width="2"/></svg></div>`;
       card.prepend(canvas);
 
       const label = document.createElement('div');
@@ -367,22 +630,16 @@
     }
   }
 
-  // ── Page selection ─────────────────────────────────────────
+  // ── Selection ──────────────────────────────────────────────
   function togglePage(n, card) {
-    if (selected.has(n)) {
-      selected.delete(n);
-      card.classList.remove('selected');
-    } else {
-      selected.add(n);
-      card.classList.add('selected');
-    }
+    selected.has(n) ? selected.delete(n) : selected.add(n);
+    card.classList.toggle('selected');
     updateCounter();
   }
 
   document.getElementById('select-all-btn').addEventListener('click', () => {
-    document.querySelectorAll('.page-card').forEach(c => {
-      const n = parseInt(c.dataset.page);
-      selected.add(n);
+    grid.querySelectorAll('.page-card').forEach(c => {
+      selected.add(+c.dataset.page);
       c.classList.add('selected');
     });
     updateCounter();
@@ -390,77 +647,67 @@
 
   document.getElementById('deselect-btn').addEventListener('click', () => {
     selected.clear();
-    document.querySelectorAll('.page-card').forEach(c => c.classList.remove('selected'));
+    grid.querySelectorAll('.page-card').forEach(c => c.classList.remove('selected'));
     updateCounter();
   });
 
   function updateCounter() {
     const n = selected.size;
-    selCount.textContent = n + (n === 1 ? ' pagina selezionata' : ' pagine selezionate');
+    selCount.textContent = n + (n === 1 ? ' pag. selezionata' : ' pag. selezionate');
     extractBtn.disabled = n === 0;
   }
 
-  // ── Jump to page ───────────────────────────────────────────
+  // ── Jump ───────────────────────────────────────────────────
   document.getElementById('jump-btn').addEventListener('click', jumpToPage);
   jumpInput.addEventListener('keydown', e => e.key === 'Enter' && jumpToPage());
-
   function jumpToPage() {
     const n = parseInt(jumpInput.value);
-    if (!n || n < 1 || n > totalPages) return showToast('Numero di pagina non valido', 'error');
-    const card = grid.querySelector(`[data-page="${n}"]`);
-    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (!n || n < 1 || n > totalPages) return showToast('Numero pagina non valido', 'error');
+    grid.querySelector(`[data-page="${n}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
-
-  // ── Range input from text (e.g. "1-3,5,7-9") ──────────────
-  // (parse via the toolbar range field if present)
 
   // ── Extract ────────────────────────────────────────────────
   extractBtn.addEventListener('click', async () => {
-    if (selected.size === 0) return;
+    if (!selected.size) return;
     showSpinner('Estrazione in corso…');
     try {
       const { PDFDocument } = PDFLib;
       const srcDoc = await PDFDocument.load(pdfBytes);
       const newDoc = await PDFDocument.create();
       const pages  = Array.from(selected).sort((a, b) => a - b);
-
       for (const n of pages) {
-        const [copied] = await newDoc.copyPages(srcDoc, [n - 1]);
-        newDoc.addPage(copied);
+        const [p] = await newDoc.copyPages(srcDoc, [n - 1]);
+        newDoc.addPage(p);
       }
-
-      const outBytes = await newDoc.save();
-      const blob = new Blob([outBytes], { type: 'application/pdf' });
+      const blob = new Blob([await newDoc.save()], { type: 'application/pdf' });
       const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href = url;
-      a.download = 'pagine-estratte.pdf';
+      const a    = Object.assign(document.createElement('a'), { href: url, download: 'pagine-estratte.pdf' });
       a.click();
       URL.revokeObjectURL(url);
-      showToast(`${pages.length} pagine estratte con successo!`, 'success');
+      showToast(`${pages.length} pagine estratte!`, 'success');
     } catch (err) {
-      showToast('Errore durante l\'estrazione: ' + err.message, 'error');
+      showToast('Errore: ' + err.message, 'error');
     }
     hideSpinner();
   });
 
-  // ── New file ───────────────────────────────────────────────
+  // ── Reset ──────────────────────────────────────────────────
   document.getElementById('new-file-btn').addEventListener('click', () => {
-    pdfBytes = null;
-    selected.clear();
-    totalPages = 0;
+    pdfBytes = null; pdfDoc = null;
+    selected.clear(); totalPages = 0;
     grid.innerHTML = '';
-    grid.classList.remove('visible');
-    toolbar.classList.remove('visible');
+    tocList.innerHTML = '';
+    tocEmpty.style.display = '';
+    tocCount.textContent = '';
+    tocSearchWrap.style.display = 'none';
+    tocSearchInput.value = '';
+    mainEl.classList.remove('visible');
     dropZone.style.display = '';
     fileInput.value = '';
   });
 
-  // ── Spinner / Toast helpers ────────────────────────────────
-  function showSpinner(msg) {
-    spinnerMsg.textContent = msg;
-    spinner.classList.add('visible');
-  }
+  // ── Helpers ────────────────────────────────────────────────
+  function showSpinner(msg) { spinnerMsg.textContent = msg; spinner.classList.add('visible'); }
   function hideSpinner() { spinner.classList.remove('visible'); }
 
   let toastTimer;
@@ -468,7 +715,7 @@
     toast.textContent = msg;
     toast.className = 'show ' + type;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.className = '', 3000);
+    toastTimer = setTimeout(() => (toast.className = ''), 3000);
   }
 </script>
 </body>
